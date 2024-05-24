@@ -106,7 +106,20 @@ async function run() {
 		// services related api
 		app.get("/services", async (req, res) => {
 			try {
-				const cursor = serviceCollection.find();
+				const filter = req.query;
+				console.log(`filter:`, filter);
+				const sort = filter.sort;
+				const min = +filter.min;
+				const max = +filter.max;
+				const query = {
+					price: { $gt: min, $lt: max },
+				};
+				const options = {
+					sort: {
+						price: sort === "asc" ? 1 : -1,
+					},
+				};
+				const cursor = serviceCollection.find(query, options);
 				const result = await cursor.toArray();
 				res.send(result);
 			} catch (error) {
@@ -114,6 +127,25 @@ async function run() {
 				res.status(500).send({ message: "Internal Server Error" });
 			}
 		});
+
+		// app.get("/temp", logger, async (req, res) => {
+		// 	try {
+		// 		const result = await serviceCollection.updateMany(
+		// 			{ price: { $type: "string" } }, // filter by type string
+		// 			[
+		// 				{
+		// 					$set: {
+		// 						price: { $toDouble: "$price" },
+		// 					},
+		// 				},
+		// 			]
+		// 		);
+		// 		res.send(result);
+		// 	} catch (error) {
+		// 		console.error("error: ", error);
+		// 		res.status(500).send({ message: "Internal Server Error" });
+		// 	}
+		// });
 
 		app.get("/services/:id", async (req, res) => {
 			try {
