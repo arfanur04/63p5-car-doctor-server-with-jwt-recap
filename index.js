@@ -111,9 +111,34 @@ async function run() {
 				const sort = filter.sort;
 				const min = +filter.min;
 				const max = +filter.max;
-				const query = {
-					price: { $gt: min, $lt: max },
-				};
+				const search = filter.search;
+
+				const query = {};
+				if (min || max) {
+					query.price = {};
+					if (min) {
+						query.price.$gte = min;
+					}
+					if (max) {
+						query.price.$lte = max;
+					}
+				} else if (search) {
+					// query.title = {};
+					// query.title.$regex = search;
+					// query.title.$options = "i";
+
+					query.title = {
+						$regex: search,
+						$options: "i",
+					};
+				} else {
+					query.price = {};
+					query.price.$gte = 0;
+				}
+				// const query = {
+				// 	price: { $gte: min, $lte: max },
+				// };
+				// const query = { price: { $gte: 0 } };
 				const options = {
 					sort: {
 						price: sort === "asc" ? 1 : -1,
